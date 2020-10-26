@@ -74,12 +74,13 @@ impl<'a> Rates<'a> {
         }
     }
 
-    pub(crate) fn all<'b>(&'b self) -> Vec<(NaiveDate, f64)> {
+    pub(crate) fn all(&self) -> Vec<(NaiveDate, f64)> {
         match self {
             Rates::Equal => Vec::new(),
             Rates::Conversion {
                 symbol,
-                rate: ConversionRate{ rates}, ..
+                rate: ConversionRate { rates },
+                ..
             } => rates
                 .iter()
                 .filter_map(|(date, rates)| {
@@ -88,13 +89,16 @@ impl<'a> Rates<'a> {
                     } else {
                         None
                     }
-                }).collect()
+                })
+                .collect(),
         }
     }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub(crate) struct ConversionRate{ rates: HashMap<NaiveDate, HashMap<String, f64>>}
+pub(crate) struct ConversionRate {
+    rates: HashMap<NaiveDate, HashMap<String, f64>>,
+}
 
 /// Fetch the `symbol' EUR exchange rate, expressed in euros.
 pub(crate) async fn fetch_exchange_rate_history<'a>(
