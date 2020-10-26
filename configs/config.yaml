@@ -1,0 +1,16 @@
+# An example configuration
+start: 2019-12-31
+base_currency: EUR
+currencies:
+  - type: Coincap
+    # This is the name given on coincap.
+    id: ethereum
+    # The ticker symbol used in beancount.
+    ticker: ETH
+    # The destination file
+    path: prices/ethereum.beancount
+  - type: Fiat
+    # The ticker symbol, same as the abbreviation in the API.
+    symbol: NZD
+    # The destination file
+    path: prices/new-zealand-dollar.beancount
