@@ -83,9 +83,7 @@ impl<'a> Rates<'a> {
                 ..
             } => rates
                 .iter()
-                .filter_map(|(date, rates)| {
-                    rates.get(*symbol).map(|rate| (*date, *rate))
-                })
+                .filter_map(|(date, rates)| rates.get(*symbol).map(|rate| (*date, *rate)))
                 .collect(),
         }
     }
