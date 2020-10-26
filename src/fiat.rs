@@ -84,7 +84,7 @@ impl<'a> Rates<'a> {
             } => rates
                 .iter()
                 .filter_map(|(date, rates)| {
-                    rates.get(*symbol).map_or(None, |rate| Some((*date, *rate)))
+                    rates.get(*symbol).map(|rate| (*date, *rate))
                 })
                 .collect(),
         }
