@@ -49,10 +49,12 @@ pub(crate) async fn fetch_price_history(id: &str) -> Result<History, RequestErro
 
 pub(crate) async fn generate_file(
     config: &Config,
-    renderer: &BasicRenderer,
+    renderer: BasicRenderer,
     base_currency: &str,
 ) -> Result<(), RequestError> {
-    use RequestError::*;
+    use RequestError::{
+        BeancountFileCreationFailed, InvalidPrice, ParsePriceError, PriceDataError,
+    };
     if let Some(asset_prices) = fetch_price_history(&config.id).await?.data {
         // Get the available date range for this asset.
         let first = asset_prices.first().unwrap().time.date().naive_utc();

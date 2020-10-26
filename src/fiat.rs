@@ -20,11 +20,11 @@ pub struct Config {
 
 pub(crate) async fn generate_file(
     config: &Config,
-    renderer: &BasicRenderer,
+    renderer: BasicRenderer,
     first: NaiveDate,
     base_currency: &str,
 ) -> Result<(), RequestError> {
-    use RequestError::*;
+    use RequestError::{BeancountFileCreationFailed, InvalidPrice, PriceDataError};
     let last = Local::now().date().naive_local();
     let rates = fetch_exchange_rate_history(first, last, &config.symbol, base_currency).await?;
 
@@ -84,11 +84,7 @@ impl<'a> Rates<'a> {
             } => rates
                 .iter()
                 .filter_map(|(date, rates)| {
-                    if let Some(rate) = rates.get(*symbol) {
-                        Some((*date, *rate))
-                    } else {
-                        None
-                    }
+                    rates.get(*symbol).map_or(None, |rate| Some((*date, *rate)))
                 })
                 .collect(),
         }
