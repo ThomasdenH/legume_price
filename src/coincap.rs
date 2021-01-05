@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::fs::File;
 use std::io::BufWriter;
+use std::iter::successors;
 use std::path::PathBuf;
 use tokio_compat_02::FutureExt;
 
@@ -70,7 +71,11 @@ pub(crate) async fn generate_file(
         // Write the prices
         for line in asset_prices {
             let date = line.time.date().naive_utc();
-            if let Some(usd_eur) = usd_eur.rate_at(date) {
+
+            // Find a previous day with an exchange rate
+            if let Some(usd_eur) = successors(Some(date), chrono::NaiveDate::pred_opt)
+                .find_map(|date| usd_eur.rate_at(date))
+            {
                 let amount = Amount::builder()
                     .currency(Cow::from(base_currency))
                     .num(
