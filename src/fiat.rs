@@ -10,7 +10,6 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
-use tokio_compat_02::FutureExt;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -108,11 +107,9 @@ pub(crate) async fn fetch_exchange_rate_history<'a>(
             "https://api.exchangeratesapi.io/history?start_at={}&end_at={}&symbols={}&base={}",
             first, last, symbol, base_currency
         ))
-        .compat()
         .await
         .map_err(RequestError::ExchangeRate)?
         .json::<ConversionRate>()
-        .compat()
         .await
         .map_err(RequestError::ExchangeRate)
         .map(|rate| Rates::Conversion { symbol, rate })

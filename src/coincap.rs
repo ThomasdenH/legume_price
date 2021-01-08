@@ -11,7 +11,6 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::iter::successors;
 use std::path::PathBuf;
-use tokio_compat_02::FutureExt;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -39,11 +38,9 @@ pub(crate) async fn fetch_price_history(id: &str) -> Result<History, RequestErro
         "https://api.coincap.io/v2/assets/{}/history?interval=d1",
         id
     ))
-    .compat()
     .await
     .map_err(RequestError::PriceHistory)?
     .json::<History>()
-    .compat()
     .await
     .map_err(RequestError::PriceHistory)
 }
