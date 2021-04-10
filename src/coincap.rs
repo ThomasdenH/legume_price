@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use crate::fiat;
 use crate::RequestError;
 use beancount_core::{Amount, Date, Price};
@@ -33,10 +34,12 @@ pub struct History {
 }
 
 /// Fetch the price history from coincap.
-pub(crate) async fn fetch_price_history(id: &str) -> Result<History, RequestError> {
+pub(crate) async fn fetch_price_history(id: &str, start: NaiveDate) -> Result<History, RequestError> {
+    let start = start.and_hms(0, 0, 0).timestamp_millis();
+    let end = Utc::now().timestamp_millis();
     reqwest::get(&format!(
-        "https://api.coincap.io/v2/assets/{}/history?interval=d1",
-        id
+        "https://api.coincap.io/v2/assets/{}/history?interval=d1&start={}&end={}",
+        id, start, end
     ))
     .await
     .map_err(RequestError::PriceHistory)?
@@ -49,11 +52,12 @@ pub(crate) async fn generate_file(
     config: &Config,
     renderer: BasicRenderer,
     base_currency: &str,
+    start_date: NaiveDate
 ) -> Result<(), RequestError> {
     use RequestError::{
         BeancountFileCreationFailed, InvalidPrice, ParsePriceError, PriceDataError,
     };
-    if let Some(asset_prices) = fetch_price_history(&config.id).await?.data {
+    if let Some(asset_prices) = fetch_price_history(&config.id, start_date).await?.data {
         // Get the available date range for this asset.
         let first = asset_prices.first().unwrap().time.date().naive_utc();
         let last = asset_prices.last().unwrap().time.date().naive_utc();

@@ -74,7 +74,7 @@ async fn main() -> Result<(), anyhow::Error> {
     for currency in root_config.currencies {
         match currency {
             CurrencyConfig::Coincap(currency) => {
-                coincap::generate_file(&currency, renderer, &root_config.base_currency)
+                coincap::generate_file(&currency, renderer, &root_config.base_currency, root_config.start)
                     .await
                     .map_err(|source| Error::Request {
                         id: currency.id.to_string(),
